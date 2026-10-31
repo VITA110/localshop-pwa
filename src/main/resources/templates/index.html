@@ -1,73 +1,183 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#155e4b">
-    <title>LocalShop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f8f5ee">
+    <meta name="description" content="Productos locales, frescos y hechos con cariño. Descubre Localshop.">
+    <title>Localshop | Hecho cerca, sabe mejor</title>
+    <link rel="manifest" th:href="@{/manifest.json}">
+    <link rel="icon" type="image/png" th:href="@{/images/icon-192.png}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <style>
-        :root { color-scheme: light; font-family: Arial, sans-serif; color: #17352d; background: #f5f7f4; }
-        body { margin: 0; }
-        header { padding: 2.5rem 1.25rem; color: white; text-align: center; background: #155e4b; }
-        main { max-width: 1080px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
-        h2 { margin-top: 0; }
-        .catalogo { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
-        .producto, form { padding: 1.25rem; border-radius: .75rem; background: white; box-shadow: 0 2px 8px #17352d1a; }
-        .producto img { width: 100%; height: 145px; margin-bottom: 1rem; border-radius: .5rem; object-fit: cover; background: #e6ece8; }
-        .producto h3 { margin: 0 0 .5rem; }
-        .producto p { min-height: 3rem; color: #4d5d57; }
-        .precio { color: #155e4b; font-size: 1.2rem; font-weight: bold; }
-        section { margin-top: 2.5rem; }
-        form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-        label { display: grid; gap: .4rem; font-weight: bold; }
-        input, textarea, button { box-sizing: border-box; padding: .7rem; border: 1px solid #b8c7c0; border-radius: .4rem; font: inherit; }
-        textarea, .ancho-completo { grid-column: 1 / -1; }
-        button { border: 0; color: white; cursor: pointer; background: #155e4b; }
-        @media (max-width: 600px) { form { grid-template-columns: 1fr; } }
+        .product-form {
+            display: grid;
+            gap: 1rem;
+            max-width: 700px;
+            margin: 2rem auto;
+        }
+
+        .product-form label {
+            display: grid;
+            gap: .4rem;
+        }
+
+        .product-form input,
+        .product-form textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: .75rem;
+            border: 1px solid #b8c7c0;
+            border-radius: .4rem;
+            font: inherit;
+        }
+
+        .product-form textarea {
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
-<header>
-    <h1>LocalShop</h1>
-    <p>Productos locales, cerca de ti.</p>
+<header class="site-header">
+    <a class="brand" th:href="@{/}" aria-label="Localshop, inicio">
+        <span class="brand-mark" aria-hidden="true">l</span>
+        <span>localshop<span class="brand-period">.</span></span>
+    </a>
+    <nav class="header-actions" aria-label="Acciones">
+        <button class="button button-install" id="install-button" type="button" hidden>Instalar app</button>
+        <button class="button button-location" id="location-button" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                <circle cx="12" cy="10" r="2.5"/>
+            </svg>
+            <span>Encontrar tiendas</span>
+        </button>
+    </nav>
 </header>
+
 <main>
-    <section>
-        <h2>Catálogo</h2>
-        <div class="catalogo">
-            <article class="producto" th:each="producto : ${productos}">
-                <img th:if="${producto.imagenUrl != null and !producto.imagenUrl.isBlank()}"
-                     th:src="${producto.imagenUrl}" th:alt="${producto.nombre}">
-                <h3 th:text="${producto.nombre}">Producto</h3>
-                <p th:text="${producto.descripcion}">Descripción del producto.</p>
-                <span class="precio" th:text="${'$' + #numbers.formatDecimal(producto.precio, 1, 2)}">$0.00</span>
-            </article>
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-dot"></span> Lo bueno está más cerca</p>
+            <h1 id="hero-title">Hecho cerca,<br><em>sabe mejor.</em></h1>
+            <p class="hero-description">
+                Descubre los sabores de tu comunidad. Productos locales, frescos y hechos con cariño.
+            </p>
+            <a class="button button-primary" href="#catalogo">
+                Explorar productos
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                </svg>
+            </a>
+        </div>
+        <div class="hero-art" role="img" aria-label="Ilustración de una bolsa con productos locales">
+            <div class="sun-shape"></div>
+            <div class="hero-note"><span>✳</span> de aquí, para ti</div>
+            <div class="market-bag">
+                <div class="bag-handle"></div>
+                <div class="bag-front">
+                    <span class="bag-logo">l.</span>
+                    <span class="bag-leaf leaf-one"></span>
+                    <span class="bag-leaf leaf-two"></span>
+                </div>
+                <span class="produce produce-orange"></span>
+                <span class="produce produce-green"></span>
+                <span class="produce produce-yellow"></span>
+            </div>
+            <span class="sparkle sparkle-one">✳</span>
+            <span class="sparkle sparkle-two">✦</span>
         </div>
     </section>
 
-    <section>
-        <h2>Registrar producto</h2>
-        <form action="/productos" method="post">
-            <label>Nombre
+    <section class="catalog section-shell" id="catalogo" aria-labelledby="catalog-title">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Pequeños productores, grandes sabores</p>
+                <h2 id="catalog-title">Recién llegado a tu mesa<span>.</span></h2>
+            </div>
+            <p class="section-aside">Una selección hecha<br>con mucho cariño <span>♥</span></p>
+        </div>
+
+        <div class="product-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
+            <article class="product-card" th:each="producto : ${productos}">
+                <div class="product-image-wrap">
+                    <img class="product-image"
+                         th:if="${producto.imagenUrl != null and !producto.imagenUrl.isBlank()}"
+                         th:src="${producto.imagenUrl}"
+                         th:alt="${producto.nombre}"
+                         loading="lazy">
+                    <span class="product-tag">Local</span>
+                </div>
+                <div class="product-info">
+                    <h3 th:text="${producto.nombre}">Producto local</h3>
+                    <p class="product-description"
+                       th:text="${producto.descripcion}">
+                        Hecho con ingredientes de nuestra comunidad.
+                    </p>
+                    <p class="product-price">
+                        <span>$</span>
+                        <span th:text="${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </p>
+                </div>
+            </article>
+        </div>
+
+        <div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
+            <span aria-hidden="true">✳</span>
+            <p>Estamos preparando algo rico.</p>
+            <small>Muy pronto encontrarás aquí los productos de tu comunidad.</small>
+        </div>
+    </section>
+
+    <section class="local-banner section-shell" aria-label="Apoya lo local">
+        <span class="banner-icon" aria-hidden="true">✳</span>
+        <p>Comprar local <em>cambia todo.</em></p>
+        <span class="banner-caption">Más sabor para ti. Más apoyo para quienes producen.</span>
+    </section>
+
+    <section class="section-shell" aria-labelledby="register-title">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Catálogo Localshop</p>
+                <h2 id="register-title">Registrar producto<span>.</span></h2>
+            </div>
+        </div>
+
+        <form class="product-form" th:action="@{/productos}" method="post">
+            <label>
+                Nombre
                 <input name="nombre" required maxlength="255">
             </label>
-            <label>Precio
+
+            <label>
+                Precio
                 <input name="precio" type="number" min="0" step="0.01" required>
             </label>
-            <label class="ancho-completo">Descripción
+
+            <label>
+                Descripción
                 <textarea name="descripcion" required maxlength="1000" rows="3"></textarea>
             </label>
-            <label class="ancho-completo">URL de imagen (opcional)
+
+            <label>
+                URL de imagen (opcional)
                 <input name="imagenUrl" type="url" maxlength="1000">
             </label>
-            <button class="ancho-completo" type="submit">Guardar producto</button>
+
+            <button class="button button-primary" type="submit">Guardar producto</button>
         </form>
     </section>
 </main>
-<script>
-    if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
-    }
-</script>
+
+<footer class="site-footer">
+    <a class="brand footer-brand" th:href="@{/}">
+        <span class="brand-mark" aria-hidden="true">l</span>
+        <span>localshop<span class="brand-period">.</span></span>
+    </a>
+    <p>Hecho con cariño en tu comunidad <span>♥</span></p>
+</footer>
+
+<div class="toast" id="location-message" role="status" aria-live="polite"></div>
+<script th:src="@{/js/app.js}" defer></script>
 </body>
 </html>

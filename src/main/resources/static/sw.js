@@ -1,5 +1,10 @@
 const CACHE_NAME = "localshop-v1";
-const APP_SHELL = ["/"];
+const APP_SHELL = [
+    "/",
+    "/manifest.json",
+    "/css/styles.css",
+    "/js/app.js"
+];
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
@@ -14,7 +19,9 @@ self.addEventListener("activate", (event) => {
         caches.keys()
             .then((cacheNames) => Promise.all(
                 cacheNames
-                    .filter((cacheName) => cacheName !== CACHE_NAME)
+                    .filter((cacheName) =>
+                        cacheName.startsWith("localshop-") && cacheName !== CACHE_NAME
+                    )
                     .map((cacheName) => caches.delete(cacheName))
             ))
             .then(() => self.clients.claim())
@@ -23,8 +30,24 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
     const request = event.request;
+    const requestUrl = new URL(request.url);
 
-    if (request.method !== "GET" || !request.url.startsWith("http")) {
+    if (request.method !== "GET" || requestUrl.origin !== self.location.origin) {
+        return;
+    }
+
+    if (request.mode === "navigate") {
+        event.respondWith(
+            fetch(request)
+                .then(async (response) => {
+                    if (response.ok) {
+                        const cache = await caches.open(CACHE_NAME);
+                        await cache.put("/", response.clone());
+                    }
+                    return response;
+                })
+                .catch(async () => (await caches.match("/")) || Response.error())
+        );
         return;
     }
 
@@ -34,17 +57,15 @@ self.addEventListener("fetch", (event) => {
                 return cachedResponse;
             }
 
-            return fetch(request)
-                .then((networkResponse) => {
-                    if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-                        return networkResponse;
-                    }
+            return fetch(request).then((response) => {
+                if (!response.ok) {
+                    return response;
+                }
 
-                    const responseToCache = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
-                    return networkResponse;
-                })
-                .catch(() => request.mode === "navigate" ? caches.match("/") : Response.error());
+                return caches.open(CACHE_NAME)
+                    .then((cache) => cache.put(request, response.clone()))
+                    .then(() => response);
+            });
         })
     );
 });
