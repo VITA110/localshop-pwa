@@ -5,9 +5,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
@@ -20,8 +23,15 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 255)
     private String nombre;
+
+    @Column(nullable = false, length = 1000)
     private String descripcion;
-    private Double precio;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal precio;
+
+    @Column(name = "imagen_url", length = 1000)
     private String imagenUrl;
 }

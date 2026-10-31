@@ -2,6 +2,7 @@ package com.pwa.localshop.controller;
 
 import com.pwa.localshop.model.Producto;
 import com.pwa.localshop.repository.ProductoRepository;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ public class ProductoController {
     public String crearProducto(
             @RequestParam String nombre,
             @RequestParam String descripcion,
-            @RequestParam Double precio,
+            @RequestParam BigDecimal precio,
             @RequestParam(required = false) String imagenUrl) {
         productoRepository.save(new Producto(null, nombre, descripcion, precio, imagenUrl));
         return "redirect:/";
