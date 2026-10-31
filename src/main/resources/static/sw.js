@@ -3,13 +3,7 @@ const APP_SHELL = [
     "/",
     "/manifest.json",
     "/css/styles.css",
-    "/js/app.js",
-    "/images/icon-192.png",
-    "/images/icon-512.png",
-    "/images/cafe.jpg",
-    "/images/miel.jpg",
-    "/images/pan.jpg",
-    "/images/mermelada.jpg"
+    "/js/app.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -25,7 +19,9 @@ self.addEventListener("activate", (event) => {
         caches.keys()
             .then((cacheNames) => Promise.all(
                 cacheNames
-                    .filter((cacheName) => cacheName.startsWith("localshop-") && cacheName !== CACHE_NAME)
+                    .filter((cacheName) =>
+                        cacheName.startsWith("localshop-") && cacheName !== CACHE_NAME
+                    )
                     .map((cacheName) => caches.delete(cacheName))
             ))
             .then(() => self.clients.claim())
@@ -33,18 +29,20 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-    const requestUrl = new URL(event.request.url);
-    if (event.request.method !== "GET" || !["http:", "https:"].includes(requestUrl.protocol)) return;
-    if (requestUrl.origin !== self.location.origin) return;
+    const request = event.request;
+    const requestUrl = new URL(request.url);
 
-    if (event.request.mode === "navigate") {
+    if (request.method !== "GET" || requestUrl.origin !== self.location.origin) {
+        return;
+    }
+
+    if (request.mode === "navigate") {
         event.respondWith(
-            fetch(event.request)
-                .then((response) => {
+            fetch(request)
+                .then(async (response) => {
                     if (response.ok) {
-                        return caches.open(CACHE_NAME)
-                            .then((cache) => cache.put("/", response.clone()))
-                            .then(() => response);
+                        const cache = await caches.open(CACHE_NAME);
+                        await cache.put("/", response.clone());
                     }
                     return response;
                 })
@@ -54,12 +52,18 @@ self.addEventListener("fetch", (event) => {
     }
 
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) return cachedResponse;
-            return fetch(event.request).then((response) => {
-                if (!response.ok) return response;
+        caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+
+            return fetch(request).then((response) => {
+                if (!response.ok) {
+                    return response;
+                }
+
                 return caches.open(CACHE_NAME)
-                    .then((cache) => cache.put(event.request, response.clone()))
+                    .then((cache) => cache.put(request, response.clone()))
                     .then(() => response);
             });
         })

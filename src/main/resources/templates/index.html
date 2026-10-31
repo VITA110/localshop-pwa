@@ -9,6 +9,33 @@
     <link rel="manifest" th:href="@{/manifest.json}">
     <link rel="icon" type="image/png" th:href="@{/images/icon-192.png}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .product-form {
+            display: grid;
+            gap: 1rem;
+            max-width: 700px;
+            margin: 2rem auto;
+        }
+
+        .product-form label {
+            display: grid;
+            gap: .4rem;
+        }
+
+        .product-form input,
+        .product-form textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: .75rem;
+            border: 1px solid #b8c7c0;
+            border-radius: .4rem;
+            font: inherit;
+        }
+
+        .product-form textarea {
+            resize: vertical;
+        }
+    </style>
 </head>
 <body>
 <header class="site-header">
@@ -19,7 +46,10 @@
     <nav class="header-actions" aria-label="Acciones">
         <button class="button button-install" id="install-button" type="button" hidden>Instalar app</button>
         <button class="button button-location" id="location-button" type="button">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                <circle cx="12" cy="10" r="2.5"/>
+            </svg>
             <span>Encontrar tiendas</span>
         </button>
     </nav>
@@ -30,10 +60,14 @@
         <div class="hero-copy">
             <p class="eyebrow"><span class="eyebrow-dot"></span> Lo bueno está más cerca</p>
             <h1 id="hero-title">Hecho cerca,<br><em>sabe mejor.</em></h1>
-            <p class="hero-description">Descubre los sabores de tu comunidad. Productos locales, frescos y hechos con cariño.</p>
+            <p class="hero-description">
+                Descubre los sabores de tu comunidad. Productos locales, frescos y hechos con cariño.
+            </p>
             <a class="button button-primary" href="#catalogo">
                 Explorar productos
-                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                </svg>
             </a>
         </div>
         <div class="hero-art" role="img" aria-label="Ilustración de una bolsa con productos locales">
@@ -67,16 +101,27 @@
         <div class="product-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
             <article class="product-card" th:each="producto : ${productos}">
                 <div class="product-image-wrap">
-                    <img class="product-image" th:src="${producto.imagenUrl}" th:alt="${producto.nombre}" loading="lazy">
+                    <img class="product-image"
+                         th:if="${producto.imagenUrl != null and !producto.imagenUrl.isBlank()}"
+                         th:src="${producto.imagenUrl}"
+                         th:alt="${producto.nombre}"
+                         loading="lazy">
                     <span class="product-tag">Local</span>
                 </div>
                 <div class="product-info">
                     <h3 th:text="${producto.nombre}">Producto local</h3>
-                    <p class="product-description" th:text="${producto.descripcion}">Hecho con ingredientes de nuestra comunidad.</p>
-                    <p class="product-price"><span>$</span><span th:text="${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">0.00</span></p>
+                    <p class="product-description"
+                       th:text="${producto.descripcion}">
+                        Hecho con ingredientes de nuestra comunidad.
+                    </p>
+                    <p class="product-price">
+                        <span>$</span>
+                        <span th:text="${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </p>
                 </div>
             </article>
         </div>
+
         <div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
             <span aria-hidden="true">✳</span>
             <p>Estamos preparando algo rico.</p>
@@ -88,6 +133,39 @@
         <span class="banner-icon" aria-hidden="true">✳</span>
         <p>Comprar local <em>cambia todo.</em></p>
         <span class="banner-caption">Más sabor para ti. Más apoyo para quienes producen.</span>
+    </section>
+
+    <section class="section-shell" aria-labelledby="register-title">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Catálogo Localshop</p>
+                <h2 id="register-title">Registrar producto<span>.</span></h2>
+            </div>
+        </div>
+
+        <form class="product-form" th:action="@{/productos}" method="post">
+            <label>
+                Nombre
+                <input name="nombre" required maxlength="255">
+            </label>
+
+            <label>
+                Precio
+                <input name="precio" type="number" min="0" step="0.01" required>
+            </label>
+
+            <label>
+                Descripción
+                <textarea name="descripcion" required maxlength="1000" rows="3"></textarea>
+            </label>
+
+            <label>
+                URL de imagen (opcional)
+                <input name="imagenUrl" type="url" maxlength="1000">
+            </label>
+
+            <button class="button button-primary" type="submit">Guardar producto</button>
+        </form>
     </section>
 </main>
 
